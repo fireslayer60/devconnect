@@ -8,14 +8,17 @@ import com.devconnect.devconnect.repository.PostRepository;
 import com.devconnect.devconnect.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -33,13 +36,51 @@ public class PostService {
         Post saved = postRepository.save(post);
 
         return new PostResponseDTO(saved.getId(), saved.getContent(), saved.getImageUrl(),
-                saved.getCreatedAt(), saved.getUser().getUsername());
+                saved.getCreatedAt(), saved.getUser().getUsername(),0,false);
     }
 
-    public List<PostResponseDTO> getAllPosts() {
-        return postRepository.findAll().stream()
-                .map(p -> new PostResponseDTO(p.getId(), p.getContent(), p.getImageUrl(),
-                        p.getCreatedAt(), p.getUser().getUsername()))
-                .collect(Collectors.toList());
-    }
+    public Page<PostResponseDTO> getAllPosts(Pageable pageable, String currentUserEmail) {
+        User currentUser = userRepository.findByEmail(currentUserEmail).orElse(null);
+
+        return postRepository.findAll(pageable)
+                .map(p -> {
+                boolean likedByCurrentUser = currentUser != null && p.getLikedByUsers().contains(currentUser);
+
+                return new PostResponseDTO(
+                        p.getId(),
+                        p.getContent(),
+                        p.getImageUrl(),
+                        p.getCreatedAt(),
+                        p.getUser().getUsername(),
+                        p.getLikedByUsers().size(),
+                        likedByCurrentUser
+                );
+                });
+        }
+
+    public void likePost(Long postId, String username) {
+        User user = userRepository.findByUsername(username)
+    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        user.getLikedPosts().add(post);
+        userRepository.save(user); // or postRepository.save(post);
+        }
+
+    public void unlikePost(Long postId, String username) {
+        User user = userRepository.findByUsername(username)
+    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        user.getLikedPosts().remove(post);
+        userRepository.save(user);
+        }
+
+
+
+
 }

@@ -2,5 +2,5 @@ package com.devconnect.devconnect.dto;
 
 import java.time.LocalDateTime;
 
-public record PostResponseDTO(Long id, String content, String imageUrl, LocalDateTime createdAt, String username) {
+public record PostResponseDTO(Long id, String content, String imageUrl, LocalDateTime createdAt, String username, int likeCount, boolean likedByCurrentUser) {
 }

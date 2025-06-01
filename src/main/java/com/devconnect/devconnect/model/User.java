@@ -1,7 +1,9 @@
 package com.devconnect.devconnect.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -40,6 +42,15 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER; 
+
+    @ManyToMany
+    @JoinTable(
+        name = "post_likes",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    private Set<Post> likedPosts = new HashSet<>();
+
 }
 
 
