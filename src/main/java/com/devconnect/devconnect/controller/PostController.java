@@ -42,6 +42,7 @@ public class PostController {
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<String> likePost(@PathVariable Long postId, Principal principal) {
+        
         postService.likePost(postId, principal.getName());
         return ResponseEntity.ok("Post liked");
     }

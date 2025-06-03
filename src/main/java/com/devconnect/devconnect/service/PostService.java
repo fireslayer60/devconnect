@@ -58,8 +58,8 @@ public class PostService {
                 });
         }
 
-    public void likePost(Long postId, String username) {
-        User user = userRepository.findByUsername(username)
+    public void likePost(Long postId, String email) {
+        User user = userRepository.findByEmail(email)
     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Post post = postRepository.findById(postId)
@@ -69,8 +69,8 @@ public class PostService {
         userRepository.save(user); // or postRepository.save(post);
         }
 
-    public void unlikePost(Long postId, String username) {
-        User user = userRepository.findByUsername(username)
+    public void unlikePost(Long postId, String email) {
+        User user = userRepository.findByEmail(email)
     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Post post = postRepository.findById(postId)

@@ -3,6 +3,7 @@ import Particles from "../compenents/particles";
 import Emailform from "./components/emailform";
 import Usernameform from "./components/usernameform";
 import Passwordform from "./components/Passwordform";
+import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
    const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
@@ -10,8 +11,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -37,7 +39,9 @@ export default function LoginPage() {
 
       // Handle success (e.g., store token, redirect)
       localStorage.setItem("token", data.token);
+      
       alert(`${mode === "signup" ? "Signup" : "Login"} successful!`);
+      navigate("/home");
     } catch (err) {
       setError(err.message);
     } finally {
