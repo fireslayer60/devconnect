@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import CreatePostModal from "./components/CreatePostModal";
+import 'highlight.js/styles/github.css';
+import hljs from 'highlight.js';
+
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +22,7 @@ export default function HomePage() {
 
       const data = await response.json();
       setPosts(data.content); 
+       hljs.highlightAll();
     } catch (err) {
       console.error(err.message);
     } finally {
@@ -26,8 +30,12 @@ export default function HomePage() {
     }
   };
 
-  useEffect(() => {
+  useEffect( () => {
+      
     fetchPosts();
+      
+    
+   
   }, []);
 
   const toggleLike = async (postId, currentlyLiked) => {
@@ -74,9 +82,30 @@ export default function HomePage() {
     alert("Failed to update like status");
   }
 };
- const handleCreatePost = (newPost) => {
+ const handleCreatePost = async ({content,image}) => {
     // Later: Send to backend and refresh
-    console.log("Created post:", newPost);
+    console.log("Created post:", content);
+   
+    try {
+      const response = await fetch("http://localhost:8080/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({content,imageUrl:image})
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch posts");
+
+      const data = await response.json();
+      setPosts(data.content); 
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  
   };
 
   return (
@@ -124,7 +153,11 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <p className="text-gray-300 mb-4">{post.content}</p>
+              <div
+                  className="prose prose-invert max-w-none mb-4"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                ></div>
+
               {post.imageUrl && (
                 <img
                   src={post.imageUrl}

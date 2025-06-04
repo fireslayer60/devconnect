@@ -25,7 +25,7 @@ export default function CreatePostModal({ onClose, onSubmit }) {
         />
 
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-500 rounded">
             Cancel
           </button>
           <button
