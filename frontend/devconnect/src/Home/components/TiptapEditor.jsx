@@ -43,6 +43,7 @@ export default function TiptapEditor({ content, setContent }) {
 
   const handleLanguageChange = (event) => {
     const selectedLanguage = event.target.value;
+    console.log(selectedLanguage);
     setLanguage(selectedLanguage);
     editor
       ?.chain()

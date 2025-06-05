@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import TiptapEditor from './TiptapEditor';
 import 'highlight.js/styles/github.css';
 
-export default function CreatePostModal({ onClose, onSubmit }) {
+export default function CreatePostModal({ onClose, onSubmit ,setLoading,token}) {
   const [content, setContent] = useState('');
   const [image, setImage] = useState(null);
+  
 
   const handlePost = () => {
-    onSubmit({ content, image });
+    onSubmit({ content, image, token, setLoading});
+    onClose();
   };
 
   return (

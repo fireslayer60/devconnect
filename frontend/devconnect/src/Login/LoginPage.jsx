@@ -39,6 +39,7 @@ export default function LoginPage() {
 
       // Handle success (e.g., store token, redirect)
       localStorage.setItem("token", data.token);
+      localStorage.setItem("username",username);
       
       alert(`${mode === "signup" ? "Signup" : "Login"} successful!`);
       navigate("/home");
