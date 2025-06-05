@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -15,16 +11,14 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Post {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,columnDefinition  ="TEXT")
+    @Column(nullable = false, length = 1000)
     private String content;
-
-    private String imageUrl;
 
     private LocalDateTime createdAt;
 
@@ -32,14 +26,8 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
-
-    @ManyToMany(mappedBy = "likedPosts")
-    private Set<User> likedByUsers = new HashSet<>();
-
-   
-
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 }
+

@@ -43,6 +43,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER; 
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+
     @ManyToMany
     @JoinTable(
         name = "post_likes",
@@ -50,6 +54,7 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "post_id")
     )
     private Set<Post> likedPosts = new HashSet<>();
+
 
 }
 
