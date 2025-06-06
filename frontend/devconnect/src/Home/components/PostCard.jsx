@@ -6,18 +6,69 @@ function PostCard({ post, toggleLike }) {
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(post.comments || []);
 
-  const handleAddComment = () => {
+  const handleAddComment = async ({postid}) => {
     if (!newComment.trim()) return;
-    const commentObj = {
-      id: Date.now(),
-      username: getUserFromJWT(), // Replace with actual username if available
-      text: newComment,
-    };
-    setComments([...comments, commentObj]);
+      try {
+      const response = await fetch(`http://localhost:8080/posts/${postid}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({content:newComment})
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch posts");
+
+      const data = await response.json();
+      console.log(data);
+   
+    } catch (err) {
+      console.error(err.message);
+    }
+    
+    
+    
+    
     setNewComment('');
   };
-  const getComments = (postId)=>{
+  const getComments = async ({postid})=>{
+    setShowComments(!showComments)
+    if(showComments===false){
+      try {
+      const response = await fetch(`http://localhost:8080/posts/${postid}/comments`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
 
+      if (!response.ok) throw new Error("Failed to fetch posts");
+
+      const data = await response.json();
+      console.log(data.content);
+      setComments([]);
+      const commentList = [];
+      data.content.map((comment)=>{
+        if (!comment.content.trim()) {
+        }
+        else{
+        console.log(comment.username+" "+comment.content);
+        commentList.push({
+            id: comment.id,
+            username: comment.username,
+            text: comment.content,
+          });
+      
+        }
+      });
+      setComments(commentList);
+      
+   
+    } catch (err) {
+      console.error(err.message);
+    }
+    }
   }
 
   return (
@@ -62,7 +113,7 @@ function PostCard({ post, toggleLike }) {
         </button>
         <span className="text-sm text-gray-400">{post.likeCount} likes</span>
         <button
-          onClick={() => setShowComments(!showComments)}
+          onClick={() => getComments({postid:post.id})}
           className= {`ml-auto font-medium text-sm rounded-full px-3 py-1 ${showComments
               ? 'bg-white text-indigo-400'
               : 'bg-gray-800 text-gray-400 hover:text-white'}`}
@@ -100,7 +151,7 @@ function PostCard({ post, toggleLike }) {
               className="flex-1 bg-gray-800 text-white text-sm px-3 py-1 rounded border border-gray-600"
             />
             <button
-              onClick={handleAddComment}
+              onClick={()=>handleAddComment({postid : post.id})}
               className="text-sm bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-white"
             >
               Post
