@@ -4,6 +4,7 @@ import com.devconnect.devconnect.dto.LoginRequestDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
 import com.devconnect.devconnect.model.User;
+import com.devconnect.devconnect.model.UserProfileDTO;
 import com.devconnect.devconnect.repository.UserRepository;
 import com.devconnect.devconnect.security.CustomUserDetailsService;
 import com.devconnect.devconnect.security.JwtUtil;
@@ -11,7 +12,10 @@ import com.devconnect.devconnect.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,4 +89,52 @@ public class UserService {
     private UserResponseDTO mapToResponse(User user) {
         return new UserResponseDTO(user.getId(), user.getUsername(), user.getEmail(), user.getBio());
     }
+    public void followUser(String followerEmail, Long userIdToFollow) {
+        User follower = userRepository.findByEmail(followerEmail)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        User toFollow = userRepository.findById(userIdToFollow)
+            .orElseThrow(() -> new UsernameNotFoundException("Target user not found"));
+
+        toFollow.getFollowers().add(follower);
+        userRepository.save(toFollow);
+    }
+
+    public void unfollowUser(String followerEmail, Long userIdToUnfollow) {
+        User follower = userRepository.findByEmail(followerEmail)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        User toUnfollow = userRepository.findById(userIdToUnfollow)
+            .orElseThrow(() -> new UsernameNotFoundException("Target user not found"));
+
+        toUnfollow.getFollowers().remove(follower);
+        userRepository.save(toUnfollow);
+    }
+    
+
+    public Page<UserProfileDTO> getFollowersSorted(Long userId, Pageable pageable) {
+        return userRepository.findFollowersSortedByFollowerCount(userId, pageable)
+            .map(user -> new UserProfileDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getBio(),
+                user.getFollowers().size(),
+                user.getFollowing().size()
+            ));
+    }
+
+    public Page<UserProfileDTO> getFollowingSorted(Long userId, Pageable pageable) {
+        return userRepository.findFollowingSortedByFollowerCount(userId, pageable)
+            .map(user -> new UserProfileDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getBio(),
+                user.getFollowers().size(),
+                user.getFollowing().size()
+            ));
+    }
+
+
+
+
 }

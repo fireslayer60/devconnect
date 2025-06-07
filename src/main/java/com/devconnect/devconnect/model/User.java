@@ -54,6 +54,16 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "post_id")
     )
     private Set<Post> likedPosts = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+        name = "user_followers",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "follower_id")
+    )
+    private Set<User> followers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followers")
+    private Set<User> following = new HashSet<>();
 
 
 }
