@@ -1,10 +1,10 @@
 package com.devconnect.devconnect.service;
 
 import com.devconnect.devconnect.dto.LoginRequestDTO;
+import com.devconnect.devconnect.dto.UserProfileDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
 import com.devconnect.devconnect.model.User;
-import com.devconnect.devconnect.model.UserProfileDTO;
 import com.devconnect.devconnect.repository.UserRepository;
 import com.devconnect.devconnect.security.CustomUserDetailsService;
 import com.devconnect.devconnect.security.JwtUtil;
@@ -133,6 +133,11 @@ public class UserService {
                 user.getFollowing().size()
             ));
     }
+
+    public boolean isFollowing(Long currentUserId, Long targetUserId) {
+        return userRepository.existsByIdAndFollowing_Id(currentUserId, targetUserId);
+    }
+
 
 
 

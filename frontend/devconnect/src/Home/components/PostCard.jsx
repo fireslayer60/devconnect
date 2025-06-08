@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getUserFromJWT } from '../../compenents/getUserFromJWT';
-
+import FollowButton from './FollowButton';
 function PostCard({ post, toggleLike }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -21,7 +21,6 @@ function PostCard({ post, toggleLike }) {
       if (!response.ok) throw new Error("Failed to fetch posts");
 
       const data = await response.json();
-      console.log(data);
    
     } catch (err) {
       console.error(err.message);
@@ -84,6 +83,7 @@ function PostCard({ post, toggleLike }) {
           <p className="text-xs text-gray-500">
             {new Date(post.createdAt).toLocaleString()}
           </p>
+          <FollowButton targetUserId={post.userId} />
         </div>
       </div>
 

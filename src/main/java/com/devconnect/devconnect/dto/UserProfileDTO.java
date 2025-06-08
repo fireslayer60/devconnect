@@ -1,4 +1,4 @@
-package com.devconnect.devconnect.model;
+package com.devconnect.devconnect.dto;
 
 
 

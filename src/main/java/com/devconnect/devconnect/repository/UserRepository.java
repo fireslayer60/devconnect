@@ -28,4 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         """)
     Page<User> findFollowingSortedByFollowerCount(@Param("userId") Long userId, Pageable pageable);
 
+    boolean existsByIdAndFollowing_Id(Long currentUserId, Long targetUserId);
+
+
 }

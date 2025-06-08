@@ -36,7 +36,7 @@ public class PostService {
         Post saved = postRepository.save(post);
 
         return new PostResponseDTO(saved.getId(), saved.getContent(), saved.getImageUrl(),
-                saved.getCreatedAt(), saved.getUser().getUsername(),0,false);
+                saved.getCreatedAt(), saved.getUser().getUsername(),saved.getUser().getId(),0,false);
     }
 
     public Page<PostResponseDTO> getAllPosts(Pageable pageable, String currentUserEmail) {
@@ -52,6 +52,7 @@ public class PostService {
                         p.getImageUrl(),
                         p.getCreatedAt(),
                         p.getUser().getUsername(),
+                        p.getUser().getId(),
                         p.getLikedByUsers().size(),
                         likedByCurrentUser
                 );

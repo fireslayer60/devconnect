@@ -5,6 +5,8 @@ import hljs from 'highlight.js';
 import PostCard from "./components/PostCard";
 import NavBar from "./components/NavBar";
 import handleCreatePost from "./components/functions/handleCreatePost";
+import TopFollowers from "./components/TopFollowers";
+import {getUserFromJWT} from "../compenents/getUserFromJWT";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -13,7 +15,9 @@ export default function HomePage() {
   const [showModal, setShowModal] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+  const curUser = getUserFromJWT();
   const handleAddComment = () => {
+
     if (!newComment.trim()) return;
     const newC = {
       id: Date.now(),
@@ -36,6 +40,7 @@ export default function HomePage() {
       if (!response.ok) throw new Error("Failed to fetch posts");
 
       const data = await response.json();
+      console.log(data);
       setPosts(data.content); 
        hljs.highlightAll();
     } catch (err) {
@@ -98,30 +103,41 @@ export default function HomePage() {
   }
 }
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Navbar */}
-      <NavBar showmode={()=>setShowModal(true)}/>
+    <div className="min-h-screen bg-gray-950 text-white relative">
+  <NavBar showmode={() => setShowModal(true)} />
 
-      {/* Feed */}
-      <main className="max-w-2xl mx-auto py-8 px-4 space-y-6">
-        {loading ? (
-          <p className="text-center text-gray-500">Loading posts...</p>
-        ) : posts.length === 0 ? (
-          <p className="text-center text-gray-500">No posts yet</p>
-        ) : (
-          posts.map((post) => (
-             <PostCard key={post.id} post={post} toggleLike={toggleLike} />
-          ))
-        )}
-      </main>
-      {showModal && (
-        <CreatePostModal
-          onClose={() => setShowModal(false)}
-          onSubmit={handleCreatePost}
-          setLoading = {()=>setLoading(false)}
-          token = {token}
-        />
+  {/* Main layout */}
+  <div className="flex justify-center px-4 py-8">
+    {/* Feed container centered */}
+    <div className="w-full max-w-2xl">
+      {loading ? (
+        <p className="text-center text-gray-500">Loading posts...</p>
+      ) : posts.length === 0 ? (
+        <p className="text-center text-gray-500">No posts yet</p>
+      ) : (
+        posts.map((post) => (
+          <PostCard key={post.id} post={post} toggleLike={toggleLike} />
+        ))
       )}
     </div>
+  </div>
+
+  {/* Right fixed sidebar */}
+  <div className="hidden lg:block fixed top-20 right-8 w-[280px] py-5">
+    <TopFollowers currentUserId={4} />
+  </div>
+
+  {showModal && (
+    <CreatePostModal
+      onClose={() => setShowModal(false)}
+      onSubmit={handleCreatePost}
+      setLoading={() => setLoading(false)}
+      token={token}
+    />
+  )}
+</div>
+
+
+
   );
 }

@@ -1,9 +1,11 @@
 package com.devconnect.devconnect.controller;
 
 import com.devconnect.devconnect.dto.LoginRequestDTO;
+import com.devconnect.devconnect.dto.UserProfileDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
-import com.devconnect.devconnect.model.UserProfileDTO;
+import com.devconnect.devconnect.model.User;
+import com.devconnect.devconnect.repository.UserRepository;
 import com.devconnect.devconnect.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Map;
 import java.util.List;
@@ -22,6 +25,9 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
+
+    
+    private final UserRepository userRepository;
 
     private final UserService userService;
 
@@ -44,6 +50,23 @@ public class UserController {
     public UserResponseDTO getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        UserProfileDTO dto = new UserProfileDTO(
+            user.getId(),
+            user.getUsername(),
+            user.getBio(),
+            user.getFollowers().size(),
+            user.getFollowing().size()
+        );
+
+        return ResponseEntity.ok(dto);
+    }
+
+
     @PostMapping("/{userId}/follow")
     public ResponseEntity<String> follow(@PathVariable Long userId,
                                         @AuthenticationPrincipal UserDetails userDetails) {
@@ -69,6 +92,18 @@ public class UserController {
             @PathVariable Long userId,
             @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(userService.getFollowingSorted(userId, pageable));
+    }
+
+    @GetMapping("/{targetUserId}/is-following")
+    public ResponseEntity<Boolean> isFollowing(
+            @PathVariable Long targetUserId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User currentUser = userRepository.findByEmail(userDetails.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        boolean result = userService.isFollowing(currentUser.getId(), targetUserId);
+        return ResponseEntity.ok(result);
     }
 
 
