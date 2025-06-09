@@ -4,8 +4,10 @@ import com.devconnect.devconnect.dto.LoginRequestDTO;
 import com.devconnect.devconnect.dto.UserProfileDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
+import com.devconnect.devconnect.elasticsearch.UserDocument;
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.UserRepository;
+import com.devconnect.devconnect.repository.UserSearchRepository;
 import com.devconnect.devconnect.security.CustomUserDetailsService;
 import com.devconnect.devconnect.security.JwtUtil;
 
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private UserSearchRepository userSearchRepository;
 
     private final UserRepository userRepository;
     private final CustomUserDetailsService customUserDetailsService;
@@ -46,6 +50,13 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+        UserDocument doc = UserDocument.builder()
+            .id(user.getId().toString())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .bio(user.getBio())
+            .build();
+        userSearchRepository.save(doc);
         return mapToResponse(user);
     }
 
@@ -137,6 +148,7 @@ public class UserService {
     public boolean isFollowing(Long currentUserId, Long targetUserId) {
         return userRepository.existsByIdAndFollowing_Id(currentUserId, targetUserId);
     }
+    
 
 
 

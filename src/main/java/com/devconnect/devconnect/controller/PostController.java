@@ -2,6 +2,8 @@ package com.devconnect.devconnect.controller;
 
 import com.devconnect.devconnect.dto.PostRequestDTO;
 import com.devconnect.devconnect.dto.PostResponseDTO;
+import com.devconnect.devconnect.elasticsearch.PostDocument;
+import com.devconnect.devconnect.repository.PostSearchRepository;
 import com.devconnect.devconnect.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +25,7 @@ import org.springframework.data.domain.Sort;
 @RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
-
+    private final PostSearchRepository postSearchRepository;
     private final PostService postService;
 
     @PostMapping
@@ -52,5 +55,11 @@ public class PostController {
         postService.unlikePost(postId, principal.getName());
         return ResponseEntity.ok("Post unliked");
     }
+    @GetMapping("/posts/search")
+    public ResponseEntity<List<PostDocument>> searchPosts(@RequestParam String query) {
+        List<PostDocument> results = postSearchRepository.findByContentContainingIgnoreCase(query);
+        return ResponseEntity.ok(results);
+    }
+
 
 }

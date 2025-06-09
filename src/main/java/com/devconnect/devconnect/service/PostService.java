@@ -2,12 +2,15 @@ package com.devconnect.devconnect.service;
 
 import com.devconnect.devconnect.dto.PostRequestDTO;
 import com.devconnect.devconnect.dto.PostResponseDTO;
+import com.devconnect.devconnect.elasticsearch.PostDocument;
 import com.devconnect.devconnect.model.Post;
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.PostRepository;
+import com.devconnect.devconnect.repository.PostSearchRepository;
 import com.devconnect.devconnect.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +25,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    @Autowired
+    private PostSearchRepository postSearchRepository;
 
     public PostResponseDTO createPost(String userEmail, PostRequestDTO dto) {
         User user = userRepository.findByEmail(userEmail).orElseThrow();
@@ -34,6 +39,14 @@ public class PostService {
                 .build();
 
         Post saved = postRepository.save(post);
+
+        PostDocument doc = PostDocument.builder()
+            .id(saved.getId().toString())
+            .content(saved.getContent())
+            .username(user.getUsername())
+            .imageUrl(saved.getImageUrl())
+            .build();
+    postSearchRepository.save(doc);
 
         return new PostResponseDTO(saved.getId(), saved.getContent(), saved.getImageUrl(),
                 saved.getCreatedAt(), saved.getUser().getUsername(),saved.getUser().getId(),0,false);

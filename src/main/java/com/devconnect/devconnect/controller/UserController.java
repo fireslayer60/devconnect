@@ -4,8 +4,10 @@ import com.devconnect.devconnect.dto.LoginRequestDTO;
 import com.devconnect.devconnect.dto.UserProfileDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
+import com.devconnect.devconnect.elasticsearch.UserDocument;
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.UserRepository;
+import com.devconnect.devconnect.repository.UserSearchRepository;
 import com.devconnect.devconnect.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class UserController {
 
     
     private final UserRepository userRepository;
+    private final UserSearchRepository userSearchRepository;
 
     private final UserService userService;
 
@@ -104,6 +107,11 @@ public class UserController {
 
         boolean result = userService.isFollowing(currentUser.getId(), targetUserId);
         return ResponseEntity.ok(result);
+    }
+    @GetMapping("/users/search")
+    public ResponseEntity<List<UserDocument>> searchUsers(@RequestParam String query) {
+        List<UserDocument> results = userSearchRepository.findByUsernameContainingIgnoreCase(query);
+        return ResponseEntity.ok(results);
     }
 
 
