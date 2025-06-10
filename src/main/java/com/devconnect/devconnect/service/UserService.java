@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.suggest.Completion;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -55,6 +56,7 @@ public class UserService {
             .username(user.getUsername())
             .email(user.getEmail())
             .bio(user.getBio())
+            .suggest(new Completion(List.of(user.getUsername())))
             .build();
         userSearchRepository.save(doc);
         return mapToResponse(user);

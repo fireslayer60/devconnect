@@ -8,6 +8,7 @@ import com.devconnect.devconnect.elasticsearch.UserDocument;
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.UserRepository;
 import com.devconnect.devconnect.repository.UserSearchRepository;
+import com.devconnect.devconnect.service.UserSearchService;
 import com.devconnect.devconnect.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Map;
+import java.io.IOException;
 import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -31,6 +33,7 @@ public class UserController {
     
     private final UserRepository userRepository;
     private final UserSearchRepository userSearchRepository;
+    private final UserSearchService userSearchService;
 
     private final UserService userService;
 
@@ -112,6 +115,10 @@ public class UserController {
     public ResponseEntity<List<UserDocument>> searchUsers(@RequestParam String query) {
         List<UserDocument> results = userSearchRepository.findByUsernameContainingIgnoreCase(query);
         return ResponseEntity.ok(results);
+    }
+    @GetMapping("/users/auto-complete")
+    public ResponseEntity<List<String>> autocompleteUsers(@RequestParam String q) throws IOException {
+        return ResponseEntity.ok(userSearchService.autocompleteUser(q));
     }
 
 
