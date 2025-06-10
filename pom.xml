@@ -57,16 +57,7 @@
 		</dependency>
 
 		<!-- Optional: For Elasticsearch 7.10 compatibility -->
-		<dependency>
-			<groupId>co.elastic.clients</groupId>
-			<artifactId>elasticsearch-java</artifactId>
-			<version>7.17.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.elasticsearch.client</groupId>
-			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>7.10.2</version>
-		</dependency>
+		
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>

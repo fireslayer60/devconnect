@@ -4,10 +4,10 @@ import com.devconnect.devconnect.dto.LoginRequestDTO;
 import com.devconnect.devconnect.dto.UserProfileDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
-import com.devconnect.devconnect.elasticsearch.UserDocument;
+
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.UserRepository;
-import com.devconnect.devconnect.repository.UserSearchRepository;
+
 import com.devconnect.devconnect.security.CustomUserDetailsService;
 import com.devconnect.devconnect.security.JwtUtil;
 
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.suggest.Completion;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,8 +35,7 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    @Autowired
-    private UserSearchRepository userSearchRepository;
+    
 
     private final UserRepository userRepository;
     private final CustomUserDetailsService customUserDetailsService;
@@ -51,14 +50,7 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-        UserDocument doc = UserDocument.builder()
-            .id(user.getId().toString())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .bio(user.getBio())
-            .suggest(new Completion(List.of(user.getUsername())))
-            .build();
-        userSearchRepository.save(doc);
+        
         return mapToResponse(user);
     }
 

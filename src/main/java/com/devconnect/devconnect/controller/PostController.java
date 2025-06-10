@@ -2,9 +2,8 @@ package com.devconnect.devconnect.controller;
 
 import com.devconnect.devconnect.dto.PostRequestDTO;
 import com.devconnect.devconnect.dto.PostResponseDTO;
-import com.devconnect.devconnect.elasticsearch.PostDocument;
-import com.devconnect.devconnect.repository.PostSearchRepository;
-import com.devconnect.devconnect.service.PostSearchService;
+
+
 import com.devconnect.devconnect.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +25,9 @@ import org.springframework.data.domain.Sort;
 @RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
-    private final PostSearchRepository postSearchRepository;
+   
     private final PostService postService;
-    private final PostSearchService postSearchService;
+   
 
     @PostMapping
     public ResponseEntity<PostResponseDTO> createPost(@RequestBody PostRequestDTO dto,
@@ -57,16 +56,9 @@ public class PostController {
         postService.unlikePost(postId, principal.getName());
         return ResponseEntity.ok("Post unliked");
     }
-    @GetMapping("/posts/search")
-    public ResponseEntity<List<PostDocument>> searchPosts(@RequestParam String query) {
-        List<PostDocument> results = postSearchRepository.findByContentContainingIgnoreCase(query);
-        return ResponseEntity.ok(results);
-    }
+    
 
-    @GetMapping("/autocomplete")
-    public ResponseEntity<List<String>> autocomplete(@RequestParam String prefix) throws Exception {
-        return ResponseEntity.ok(postSearchService.autocompletePostContent(prefix));
-    }
+    
 
 
 }
