@@ -8,6 +8,9 @@ import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.PostRepository;
 
 import com.devconnect.devconnect.repository.UserRepository;
+import com.devconnect.devconnect.search.PostDocument;
+import com.devconnect.devconnect.search.PostSearchService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostSearchService postSearchService;
    
   
 
@@ -39,8 +43,14 @@ public class PostService {
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();
+        
 
         Post saved = postRepository.save(post);
+        postSearchService.indexPost(new PostDocument(
+                saved.getId().toString(),
+                saved.getContent(),
+                saved.getUser().getUsername()
+        ));
 
         
 

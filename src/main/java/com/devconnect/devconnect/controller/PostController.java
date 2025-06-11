@@ -2,8 +2,8 @@ package com.devconnect.devconnect.controller;
 
 import com.devconnect.devconnect.dto.PostRequestDTO;
 import com.devconnect.devconnect.dto.PostResponseDTO;
-
-
+import com.devconnect.devconnect.search.PostDocument;
+import com.devconnect.devconnect.search.PostSearchService;
 import com.devconnect.devconnect.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -27,11 +28,16 @@ import org.springframework.data.domain.Sort;
 public class PostController {
    
     private final PostService postService;
+    private final PostSearchService postSearchService;
+    
    
 
     @PostMapping
     public ResponseEntity<PostResponseDTO> createPost(@RequestBody PostRequestDTO dto,
                                                       @AuthenticationPrincipal UserDetails userDetails) {
+
+
+
         return ResponseEntity.ok(postService.createPost(userDetails.getUsername(), dto));
     }
 
@@ -55,6 +61,10 @@ public class PostController {
     public ResponseEntity<String> unlikePost(@PathVariable Long postId, Principal principal) {
         postService.unlikePost(postId, principal.getName());
         return ResponseEntity.ok("Post unliked");
+    }
+    @GetMapping("/posts")
+    public ResponseEntity<List<PostDocument>> searchPosts(@RequestParam String q) throws IOException {
+        return ResponseEntity.ok(postSearchService.searchPosts(q));
     }
     
 
