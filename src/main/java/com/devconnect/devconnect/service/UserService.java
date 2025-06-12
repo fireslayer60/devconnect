@@ -4,13 +4,16 @@ import com.devconnect.devconnect.dto.LoginRequestDTO;
 import com.devconnect.devconnect.dto.UserProfileDTO;
 import com.devconnect.devconnect.dto.UserRequestDTO;
 import com.devconnect.devconnect.dto.UserResponseDTO;
-
+import com.devconnect.devconnect.search.UserDocument;
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.UserRepository;
-
+import com.devconnect.devconnect.search.UserSearchService;
 import com.devconnect.devconnect.security.CustomUserDetailsService;
 import com.devconnect.devconnect.security.JwtUtil;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,13 +38,19 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private final UserSearchService userSearchService;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    
+    @Autowired
+    private ElasticsearchClient elasticsearchClient;
+       
 
     private final UserRepository userRepository;
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtil jwtUtil;
+
+    
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
         User user = User.builder()
@@ -49,7 +60,14 @@ public class UserService {
                 .bio(dto.bio())
                 .build();
 
-        userRepository.save(user);
+        User saved = userRepository.save(user);
+        userSearchService.indexUser(new UserDocument(
+            saved.getId().toString(),
+            saved.getUsername(),
+            saved.getBio()
+
+
+        ));
         
         return mapToResponse(user);
     }

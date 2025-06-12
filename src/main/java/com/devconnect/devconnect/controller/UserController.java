@@ -7,8 +7,9 @@ import com.devconnect.devconnect.dto.UserResponseDTO;
 
 import com.devconnect.devconnect.model.User;
 import com.devconnect.devconnect.repository.UserRepository;
-
-
+import com.devconnect.devconnect.search.PostDocument;
+import com.devconnect.devconnect.search.UserDocument;
+import com.devconnect.devconnect.search.UserSearchService;
 import com.devconnect.devconnect.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class UserController {
 
     
     private final UserRepository userRepository;
+    private final UserSearchService userSearchService;
     
    
 
@@ -111,7 +113,10 @@ public class UserController {
         boolean result = userService.isFollowing(currentUser.getId(), targetUserId);
         return ResponseEntity.ok(result);
     }
-    
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDocument>> searchUsers(@RequestParam String q) throws IOException {
+        return ResponseEntity.ok(userSearchService.searchUsers(q));
+    }
     
 
 
