@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
+import SearchBox from "./SearchBox.jsx"; 
 
-const TopFollowers = ( ) => {
+const TopFollowers = () => {
   const [followers, setFollowers] = useState([]);
-   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const res = await fetch("http://localhost:8080/users/me", {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
         if (!res.ok) throw new Error("Failed to fetch current user");
@@ -25,16 +26,21 @@ const TopFollowers = ( ) => {
 
   useEffect(() => {
     const fetchTopFollowers = async () => {
+      if (!currentUserId) return;
+
       try {
-        const response = await fetch(`http://localhost:8080/users/${currentUserId}/followers?page=0&size=5`, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await fetch(
+          `http://localhost:8080/users/${currentUserId}/followers?page=0&size=5`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         if (!response.ok) throw new Error("Failed to fetch followers");
         const data = await response.json();
-        setFollowers(data.content); // data is a Page object
+        setFollowers(data.content);
       } catch (error) {
         console.error("Error fetching followers:", error);
       }
@@ -43,8 +49,12 @@ const TopFollowers = ( ) => {
     fetchTopFollowers();
   }, [currentUserId]);
 
-   return (
+  return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 shadow-md w-full">
+      {/* Search */}
+      <SearchBox />
+
+      {/* Top Followers */}
       <h2 className="text-lg font-semibold text-white mb-4">Top Followers</h2>
       {followers.length === 0 ? (
         <p className="text-sm text-gray-500">No followers yet</p>
