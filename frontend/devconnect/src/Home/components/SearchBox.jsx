@@ -5,6 +5,13 @@ export default function SearchBox() {
   const [results, setResults] = useState([]);
   const [mode, setMode] = useState("idle");
 
+  const extractTextFromPTags = (html) => {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const pTags = doc.querySelectorAll("p");
+  return Array.from(pTags).map(p => p.textContent.trim()).join(" ");
+};
+
+
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setMode("searching");
@@ -22,6 +29,17 @@ export default function SearchBox() {
 
       const users = await usersRes.json();
       const posts = await postsRes.json();
+      
+      if(Object.keys(posts).length){
+        posts[0].ting = 'posts';
+      }
+      if(Object.keys(users).length){
+        users[0].ting = 'users';
+      }
+
+      console.log(users);
+      console.log(posts);
+      
 
       setResults([...users, ...posts]);
       setMode("done");
@@ -55,13 +73,13 @@ export default function SearchBox() {
       {mode === "done" && results.length > 0 && (
         <div className="mt-2 space-y-1">
           {results.map((result) =>
-            result.username ? (
+            result.ting==="users" ? (
               <div key={`user-${result.id}`} className="text-gray-300">
                 👤 <span className="font-medium text-indigo-400">{result.username}</span>
               </div>
             ) : (
               <div key={`post-${result.id}`} className="text-gray-300">
-                📝 {result.content?.slice(0, 50)}...
+                📝 {extractTextFromPTags(result.content).slice(0, 50)}...
               </div>
             )
           )}
