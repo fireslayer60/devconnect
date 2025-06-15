@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SearchBox() {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState([]);
   const [mode, setMode] = useState("idle");
+
+  const navigate = useNavigate();
 
   const extractTextFromPTags = (html) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -78,7 +81,7 @@ export default function SearchBox() {
                 👤 <span className="font-medium text-indigo-400">{result.username}</span>
               </div>
             ) : (
-              <div key={`post-${result.id}`} className="text-gray-300">
+              <div key={`post-${result.id}`} className="text-gray-300" onClick={()=>navigate(`/posts/${result.id}`, { state: { post:result } })}>
                 📝 {extractTextFromPTags(result.content).slice(0, 50)}...
               </div>
             )

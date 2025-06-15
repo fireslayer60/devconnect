@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { getUserFromJWT } from '../../compenents/getUserFromJWT';
 import FollowButton from './FollowButton';
+import { useNavigate } from 'react-router-dom';
 function PostCard({ post, toggleLike }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(post.comments || []);
+  const navigate = useNavigate();
 
   const handleAddComment = async ({postid}) => {
     if (!newComment.trim()) return;
@@ -71,7 +73,7 @@ function PostCard({ post, toggleLike }) {
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-sm mb-6">
+    <div className="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-sm mb-6 " onClick={()=>navigate(`/posts/${post.id}`, { state: { post } })}>
       <div className="flex items-center gap-3 mb-4">
         <img
           src={`https://ui-avatars.com/api/?name=${post.username}&background=random&color=random`}
