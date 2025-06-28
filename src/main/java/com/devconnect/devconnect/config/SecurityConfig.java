@@ -45,6 +45,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/users/signup", "/users/login").permitAll()
             .requestMatchers(HttpMethod.GET,"/posts/**").permitAll()
             .requestMatchers(HttpMethod.POST,"/posts/**").authenticated()
+            .requestMatchers("/admin/**").permitAll() 
             .anyRequest().authenticated()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

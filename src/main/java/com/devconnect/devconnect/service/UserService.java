@@ -77,6 +77,26 @@ public class UserService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+    @Autowired
+
+
+    public void indexAllUsers() throws IOException {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            UserDocument doc = UserDocument.builder()
+                .id(user.getId().toString())
+                .username(user.getUsername())
+                .bio(user.getBio())
+                .build();
+
+            elasticsearchClient.index(i -> i
+                .index("username")
+                .id(user.getId().toString())
+                .document(doc)
+            );
+        }
+    }
+
 
     public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -160,6 +180,7 @@ public class UserService {
     public boolean isFollowing(Long currentUserId, Long targetUserId) {
         return userRepository.existsByIdAndFollowing_Id(currentUserId, targetUserId);
     }
+
     
 
 
