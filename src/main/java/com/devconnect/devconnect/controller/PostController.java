@@ -19,6 +19,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -62,6 +65,14 @@ public class PostController {
         postService.unlikePost(postId, principal.getName());
         return ResponseEntity.ok("Post unliked");
     }
+    @GetMapping("/get/{postId}")
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long postId, Principal principal) {
+        //TODO: process POST request
+        
+        
+        return ResponseEntity.ok(postService.getPostById(postId, principal.getName()));
+    }
+    
     @GetMapping("/posts")
     public ResponseEntity<List<PostDocument>> searchPosts(@RequestParam String q) throws IOException {
         return ResponseEntity.ok(postSearchService.searchPosts(q));

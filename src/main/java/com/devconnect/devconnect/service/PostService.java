@@ -99,6 +99,24 @@ public class PostService {
                 });
         }
 
+     public PostResponseDTO getPostById(Long Id,String currentUserEmail){
+        User currentUser = userRepository.findByEmail(currentUserEmail).orElse(null);
+      
+        Post p = postRepository.findById(Id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        boolean likedByCurrentUser = currentUser != null && p.getLikedByUsers().contains(currentUser);
+        return new PostResponseDTO(
+                        p.getId(),
+                        p.getContent(),
+                        p.getImageUrl(),
+                        p.getCreatedAt(),
+                        p.getUser().getUsername(),
+                        p.getUser().getId(),
+                        p.getLikedByUsers().size(),
+                        likedByCurrentUser
+                );
+     }
+
     public void likePost(Long postId, String email) {
         User user = userRepository.findByEmail(email)
     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
