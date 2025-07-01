@@ -98,10 +98,17 @@ public class UserService {
     }
 
 
-    public UserResponseDTO getUserById(Long id) {
+    public UserProfileDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return mapToResponse(user);
+
+        
+        return new UserProfileDTO(
+            user.getId(),
+            user.getUsername(),
+            user.getBio(),
+            user.getFollowers().size(),
+            user.getFollowing().size());
     }
 
      public ResponseEntity<Map<String, String>> login(LoginRequestDTO loginRequestDTO) {

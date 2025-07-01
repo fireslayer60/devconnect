@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import SearchBox from "./SearchBox.jsx"; 
+import { useNavigate } from 'react-router-dom';
 
 const TopFollowers = () => {
   const [followers, setFollowers] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -61,7 +63,7 @@ const TopFollowers = () => {
       ) : (
         <ul className="space-y-3">
           {followers.map((f) => (
-            <li key={f.id} className="flex items-center gap-3">
+            <li key={f.id} className="flex items-center gap-3" onClick={()=>{navigate(`/profile/${f.id}`)}}>
               <img
                 src={`https://ui-avatars.com/api/?name=${f.username}&background=random&color=random`}
                 alt={f.username}

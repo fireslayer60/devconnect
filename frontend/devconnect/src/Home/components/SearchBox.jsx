@@ -77,7 +77,7 @@ export default function SearchBox() {
         <div className="mt-2 space-y-1">
           {results.map((result) =>
             result.ting==="users" ? (
-              <div key={`user-${result.id}`} className="text-gray-300">
+              <div key={`user-${result.id}`} className="text-gray-300" onClick={()=>{navigate(`/profile/${result.id}`)}}>
                 👤 <span className="font-medium text-indigo-400">{result.username}</span>
               </div>
             ) : (
