@@ -6,31 +6,26 @@ import PostCard from "./components/PostCard";
 import NavBar from "./components/NavBar";
 import handleCreatePost from "./components/functions/handleCreatePost";
 import TopFollowers from "./components/TopFollowers";
-import {getUserFromJWT} from "../compenents/getUserFromJWT";
+import { getUserFromJWT } from "../compenents/getUserFromJWT";
+import { useInView } from "react-intersection-observer";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const [showModal, setShowModal] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState('');
-  const curUser = getUserFromJWT();
-  const handleAddComment = () => {
 
-    if (!newComment.trim()) return;
-    const newC = {
-      id: Date.now(),
-      username: "You", 
-      text: newComment,
-    };
-    setComments((prev) => [newC, ...prev]);
-    setNewComment('');
-  };
+  const { ref, inView } = useInView();
+  const curUser = getUserFromJWT();
 
   const fetchPosts = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/posts?page=0&size=10", {
+      const response = await fetch(`http://localhost:8080/posts?page=${page}&size=5`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -40,9 +35,9 @@ export default function HomePage() {
       if (!response.ok) throw new Error("Failed to fetch posts");
 
       const data = await response.json();
-      console.log(data);
-      setPosts(data.content); 
-       hljs.highlightAll();
+      setPosts(prev => [...prev, ...data.content]);
+      setHasMore(!data.last);
+      hljs.highlightAll();
     } catch (err) {
       console.error(err.message);
     } finally {
@@ -50,94 +45,89 @@ export default function HomePage() {
     }
   };
 
-  useEffect( () => {
-      
+  useEffect(() => {
     fetchPosts();
-      
-    
-   
-  }, []);
+  }, [page]);
+
+  useEffect(() => {
+    if (inView && hasMore && !loading) {
+      setPage(prev => prev + 1);
+    }
+  }, [inView]);
 
   const toggleLike = async (postId, currentlyLiked) => {
-  // Optimistically update UI first
-  setPosts((prev) =>
-    prev.map((post) =>
-      post.id === postId
-        ? {
-            ...post,
-            likedByCurrentUser: !currentlyLiked,
-            likeCount: currentlyLiked ? post.likeCount - 1 : post.likeCount + 1,
-          }
-        : post
-    )
-  );
-
-  // Then hit the backend
-  try {
-    const endpoint = `http://localhost:8080/posts/${postId}/${currentlyLiked ? "unlike" : "like"}`;
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to ${currentlyLiked ? "unlike" : "like"} post`);
-    }
-  } catch (err) {
-    console.error(err.message);
-    // Optional: rollback optimistic update if error occurs
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
           ? {
               ...post,
-              likedByCurrentUser: currentlyLiked,
-              likeCount: currentlyLiked ? post.likeCount + 1 : post.likeCount - 1,
+              likedByCurrentUser: !currentlyLiked,
+              likeCount: currentlyLiked ? post.likeCount - 1 : post.likeCount + 1,
             }
           : post
       )
     );
-    alert("Failed to update like status");
-  }
-}
+
+    try {
+      const endpoint = `http://localhost:8080/posts/${postId}/${currentlyLiked ? "unlike" : "like"}`;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error();
+    } catch (err) {
+      console.error(err.message);
+      // Rollback on error
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likedByCurrentUser: currentlyLiked,
+                likeCount: currentlyLiked ? post.likeCount + 1 : post.likeCount - 1,
+              }
+            : post
+        )
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white relative">
-  <NavBar showmode={() => setShowModal(true)} />
+      <NavBar showmode={() => setShowModal(true)} />
 
-  {/* Main layout */}
-  <div className="flex justify-center px-4 py-8">
-    {/* Feed container centered */}
-    <div className="w-full max-w-2xl">
-      {loading ? (
-        <p className="text-center text-gray-500">Loading posts...</p>
-      ) : posts.length === 0 ? (
-        <p className="text-center text-gray-500">No posts yet</p>
-      ) : (
-        posts.map((post) => (
-          <PostCard key={post.id} post={post} toggleLike={toggleLike} />
-        ))
+      <div className="flex justify-center px-4 py-8">
+        <div className="w-full max-w-2xl">
+          {posts.length === 0 && !loading ? (
+            <p className="text-center text-gray-500">No posts yet</p>
+          ) : (
+            <>
+              {posts.map((post, index) => (
+                <PostCard key={`${post.id}-${index}`} post={post} toggleLike={toggleLike} />
+              ))
+              }
+              {loading && <p className="text-center text-gray-500">Loading more...</p>}
+              <div ref={ref}></div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="hidden lg:block fixed top-20 right-8 w-[280px] py-5">
+        <TopFollowers currentUserId={curUser?.id} />
+      </div>
+
+      {showModal && (
+        <CreatePostModal
+          onClose={() => setShowModal(false)}
+          onSubmit={handleCreatePost}
+          setLoading={() => setLoading(false)}
+          token={token}
+        />
       )}
     </div>
-  </div>
-
-  {/* Right fixed sidebar */}
-  <div className="hidden lg:block fixed top-20 right-8 w-[280px] py-5">
-    <TopFollowers currentUserId={4} />
-  </div>
-
-  {showModal && (
-    <CreatePostModal
-      onClose={() => setShowModal(false)}
-      onSubmit={handleCreatePost}
-      setLoading={() => setLoading(false)}
-      token={token}
-    />
-  )}
-</div>
-
-
-
   );
 }

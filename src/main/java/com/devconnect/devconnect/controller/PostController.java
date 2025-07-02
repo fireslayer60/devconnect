@@ -46,7 +46,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Page<PostResponseDTO>> getAllPosts(
-        @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
+        @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
         
         String currentUserEmail = userDetails != null ? userDetails.getUsername() : null;
 
