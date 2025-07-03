@@ -96,11 +96,13 @@ backend/
 ### 📄 Sample Post JSON (for testing via Postman)
 
 POST /posts
+```
 Authorization: Bearer <your_token>
 {
   "content": "<p>Hello world</p><pre><code class='language-js'>console.log('hi')</code></pre>",
   "imageUrl": "https://example.com/image.jpg"
 }
+```
 
 ### 💡 Future Improvements
 
