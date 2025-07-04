@@ -41,15 +41,27 @@ DevConnect is a developer-focused social platform where users can share posts (w
 
 ## 📸 Screenshots
 
-<!-- Optional: Add a few images here later -->
+### 📝 Sign Up
+![Signup Page](assets/signup.png)
+
+### 🔐 Login
+![Login Page](assets/login.png)
+
 ### 🏠 Home Feed
-![Home Feed](assets/Home.png)
+![Home Feed](assets/feed.png)
+
+### ✍️ Create Post
+![Create Post Modal](assets/create-post.png)
+
+### 📬 Post Detail
+![Post View](assets/post.png)
 
 ### 👤 User Profile
 ![Profile](assets/profile.png)
 
 ### 🔍 Search Result
 ![Search](assets/search.png)
+
 
 ---
 
