@@ -84,14 +84,14 @@ npm run dev
 
 ### 📂 Folder Structure
 
-backend/
-├── controller/
-├── dto/
-├── model/
-├── repository/
-├── service/
-├── security/
-└── config/
+backend/  
+├── controller/  
+├── dto/  
+├── model/  
+├── repository/  
+├── service/  
+├── security/  
+└── config/  
 
 ### 📄 Sample Post JSON (for testing via Postman)
 
